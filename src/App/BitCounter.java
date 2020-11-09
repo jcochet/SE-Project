@@ -1,3 +1,4 @@
+package App;
 
 /* BitCounter class
  *
