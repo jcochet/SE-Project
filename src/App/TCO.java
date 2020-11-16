@@ -1,6 +1,10 @@
 package App;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /* binMeta class
 *
@@ -37,16 +41,67 @@ public class TCO extends binMeta {
 	@Override
 	public void optimize() // by Termite Colony Optimization
 	{
+		/* Random */
+	    Random R = new Random();
+	      
 		/* Number of Termite */
-		int nbTermite = 10;
+		int N = ?;
 		/* Termite movement radius */
-		int terMovRad = 100;
+		int Tr = ?;
 		/* Maximum iteration */
-		long iterMax = maxTime;
+		long itermax = maxTime;
+
+		/* Termites */
+		int width = ?;
+		int height = ?;
+		List<Termite> X = new ArrayList<>();
 		
-		for (int i = 0; i < nbTermite; i++) {
-			
+		/* Initialize all termite randomly */
+		for (int i = 0; i < N; i++) {
+			X.add(new Termite(R.nextInt(width), R.nextInt(height)));
 		}
+		
+		/* Pheromone table */
+		double T[][] = new double[width][height];
+		
+		for (long iter = 0; iter < itermax; iter++) {
+			
+			/* Compute fitness */
+			int coveredPoints = ?;
+			int totalPoints = ?;
+			float coverage = 100 * (coveredPoints / totalPoints);
+			int alpha = 2;
+			double fitness = Math.pow(coverage, alpha);
+			
+			/* For all available location site */
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					/* Evaporation Rate  */
+					float e = 0.7f;
+					/* Update pheromone table */
+					T[i][j] = (1 - e) * T[i][j] + 1 / (fitness + 1);
+				}
+			}
+			
+			/* For all termite t */
+			for (Termite t: X) {
+				/* Find the neighbor positions for termite t */
+				List<Termite> neighbors = t.findNeighbors(X, Tr);
+				
+				/* If termite t has neighbor */
+				if (!neighbors.isEmpty()) {
+					/* Select best neighbor with higher probability */
+					//TODO
+				} else {
+					/* Select position randomly */
+					t.setPos(R.nextInt(width), R.nextInt(height));
+				}
+			}
+			
+			/* Adjust the radius Tr */
+			//TODO
+		}
+		
 	}
 
 	// main
@@ -57,13 +112,13 @@ public class TCO extends binMeta {
 		int n = 50;
 		Objective obj = new BitCounter(n);
 		Data D = obj.solutionSample();
-		RandomWalk rw = new RandomWalk(D, obj, ITMAX);
-		System.out.println(rw);
-		System.out.println("starting point : " + rw.getSolution());
+		TCO tco = new TCO(D, obj, ITMAX);
+		System.out.println(tco);
+		System.out.println("starting point : " + tco.getSolution());
 		System.out.println("optimizing ...");
-		rw.optimize();
-		System.out.println(rw);
-		System.out.println("solution : " + rw.getSolution());
+		tco.optimize();
+		System.out.println(tco);
+		System.out.println("solution : " + tco.getSolution());
 		System.out.println();
 
 		// Fermat
@@ -71,19 +126,19 @@ public class TCO extends binMeta {
 		int ndigits = 10;
 		obj = new Fermat(exp, ndigits);
 		D = obj.solutionSample();
-		rw = new RandomWalk(D, obj, ITMAX);
-		System.out.println(rw);
-		System.out.println("starting point : " + rw.getSolution());
+		tco = new TCO(D, obj, ITMAX);
+		System.out.println(tco);
+		System.out.println("starting point : " + tco.getSolution());
 		System.out.println("optimizing ...");
-		rw.optimize();
-		System.out.println(rw);
-		System.out.println("solution : " + rw.getSolution());
-		Data x = new Data(rw.solution, 0, ndigits - 1);
-		Data y = new Data(rw.solution, ndigits, 2 * ndigits - 1);
-		Data z = new Data(rw.solution, 2 * ndigits, 3 * ndigits - 1);
+		tco.optimize();
+		System.out.println(tco);
+		System.out.println("solution : " + tco.getSolution());
+		Data x = new Data(tco.solution, 0, ndigits - 1);
+		Data y = new Data(tco.solution, ndigits, 2 * ndigits - 1);
+		Data z = new Data(tco.solution, 2 * ndigits, 3 * ndigits - 1);
 		System.out.print(
 				"equivalent to the equation : " + x.posLongValue() + "^" + exp + " + " + y.posLongValue() + "^" + exp);
-		if (rw.objValue == 0.0)
+		if (tco.objValue == 0.0)
 			System.out.print(" == ");
 		else
 			System.out.print(" ?= ");
@@ -95,14 +150,14 @@ public class TCO extends binMeta {
 		int m = 14;
 		ColorPartition cp = new ColorPartition(n, m);
 		D = cp.solutionSample();
-		rw = new RandomWalk(D, cp, ITMAX);
-		System.out.println(rw);
-		System.out.println("starting point : " + rw.getSolution());
+		tco = new TCO(D, cp, ITMAX);
+		System.out.println(tco);
+		System.out.println("starting point : " + tco.getSolution());
 		System.out.println("optimizing ...");
-		rw.optimize();
-		System.out.println(rw);
-		System.out.println("solution : " + rw.getSolution());
-		cp.value(rw.solution);
+		tco.optimize();
+		System.out.println(tco);
+		System.out.println("solution : " + tco.getSolution());
+		cp.value(tco.solution);
 		System.out.println("corresponding to the matrix :\n" + cp.show());
 	}
 
