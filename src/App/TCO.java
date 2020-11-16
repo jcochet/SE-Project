@@ -57,13 +57,13 @@ public class TCO extends binMeta {
 		int n = 50;
 		Objective obj = new BitCounter(n);
 		Data D = obj.solutionSample();
-		TCO tco = new TCO(D, obj, ITMAX);
-		System.out.println(tco);
-		System.out.println("starting point : " + tco.getSolution());
+		RandomWalk rw = new RandomWalk(D, obj, ITMAX);
+		System.out.println(rw);
+		System.out.println("starting point : " + rw.getSolution());
 		System.out.println("optimizing ...");
-		tco.optimize();
-		System.out.println(tco);
-		System.out.println("solution : " + tco.getSolution());
+		rw.optimize();
+		System.out.println(rw);
+		System.out.println("solution : " + rw.getSolution());
 		System.out.println();
 
 		// Fermat
@@ -71,19 +71,19 @@ public class TCO extends binMeta {
 		int ndigits = 10;
 		obj = new Fermat(exp, ndigits);
 		D = obj.solutionSample();
-		tco = new TCO(D, obj, ITMAX);
-		System.out.println(tco);
-		System.out.println("starting point : " + tco.getSolution());
+		rw = new RandomWalk(D, obj, ITMAX);
+		System.out.println(rw);
+		System.out.println("starting point : " + rw.getSolution());
 		System.out.println("optimizing ...");
-		tco.optimize();
-		System.out.println(tco);
-		System.out.println("solution : " + tco.getSolution());
-		Data x = new Data(tco.solution, 0, ndigits - 1);
-		Data y = new Data(tco.solution, ndigits, 2 * ndigits - 1);
-		Data z = new Data(tco.solution, 2 * ndigits, 3 * ndigits - 1);
+		rw.optimize();
+		System.out.println(rw);
+		System.out.println("solution : " + rw.getSolution());
+		Data x = new Data(rw.solution, 0, ndigits - 1);
+		Data y = new Data(rw.solution, ndigits, 2 * ndigits - 1);
+		Data z = new Data(rw.solution, 2 * ndigits, 3 * ndigits - 1);
 		System.out.print(
 				"equivalent to the equation : " + x.posLongValue() + "^" + exp + " + " + y.posLongValue() + "^" + exp);
-		if (tco.objValue == 0.0)
+		if (rw.objValue == 0.0)
 			System.out.print(" == ");
 		else
 			System.out.print(" ?= ");
@@ -92,17 +92,17 @@ public class TCO extends binMeta {
 
 		// ColorPartition
 		n = 4;
-		int m = 15;
+		int m = 14;
 		ColorPartition cp = new ColorPartition(n, m);
 		D = cp.solutionSample();
-		tco = new TCO(D, cp, ITMAX);
-		System.out.println(tco);
-		System.out.println("starting point : " + tco.getSolution());
+		rw = new RandomWalk(D, cp, ITMAX);
+		System.out.println(rw);
+		System.out.println("starting point : " + rw.getSolution());
 		System.out.println("optimizing ...");
-		tco.optimize();
-		System.out.println(tco);
-		System.out.println("solution : " + tco.getSolution());
-		cp.value(tco.solution);
+		rw.optimize();
+		System.out.println(rw);
+		System.out.println("solution : " + rw.getSolution());
+		cp.value(rw.solution);
 		System.out.println("corresponding to the matrix :\n" + cp.show());
 	}
 
