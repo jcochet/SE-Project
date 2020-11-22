@@ -54,7 +54,7 @@ public class TCO extends binMeta {
 		/* Termites */
 		int width = ?;
 		int height = ?;
-		List<Termite> X = new ArrayList<>();
+		Set<Termite> X = new HashSet <>();
 		
 		/* Initialize all termite randomly */
 		for (int i = 0; i < N; i++) {
@@ -86,7 +86,7 @@ public class TCO extends binMeta {
 			/* For all termite t */
 			for (Termite t: X) {
 				/* Find the neighbor positions for termite t */
-				List<Termite> neighbors = t.findNeighbors(X, Tr);
+				Set<Termite> neighbors = t.findNeighbor(X, Tr);
 				
 				/* If termite t has neighbor */
 				if (!neighbors.isEmpty()) {
@@ -94,7 +94,7 @@ public class TCO extends binMeta {
 					//TODO
 				} else {
 					/* Select position randomly */
-					t.setPos(R.nextInt(width), R.nextInt(height));
+					t.setPosition(R.nextInt(width), R.nextInt(height));
 				}
 			}
 			
