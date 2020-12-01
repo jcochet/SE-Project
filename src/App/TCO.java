@@ -16,7 +16,7 @@ import java.util.Set;
 */
 
 public class TCO extends binMeta {
-	
+
 	// Termite Colony Optimization constructor
 	public TCO(Data startPoint, Objective obj, long maxTime) {
 		try {
@@ -42,52 +42,67 @@ public class TCO extends binMeta {
 	public void optimize() // by Termite Colony Optimization
 	{
 		/* Random */
-	    Random R = new Random();
-	      
+		Random R = new Random();
+		/* Data */
+		Data D = new Data(this.solution);
+
 		/* Number of Termite */
-		int N = ?;
+		int N = 10;
 		/* Termite movement radius */
-		int Tr = ?;
+		int Tr = 100;
 		/* Maximum iteration */
 		long itermax = maxTime;
 
 		/* Termites */
-		int width = ?;
-		int height = ?;
+		int width = 8;
+		int height = D.numberOfBytes();
 		Set<Termite> X = new HashSet<>();
-		
+
 		/* Initialize all termite randomly */
 		for (int i = 0; i < N; i++) {
 			X.add(new Termite(R.nextInt(width), R.nextInt(height)));
 		}
-		
+
 		/* Pheromone table */
 		double T[][] = new double[width][height];
-		
+
+		/* Solutions table */
+		Data Solutions[][] = new Data[width][height];
+		for (int i = 0; i < Solutions.length; i++) {
+			for (int j = 0; j < Solutions[i].length; j++) {
+				Solutions[i][j] = new Data(1, D.getCurrentBit());
+				D.moveToNextBit();
+			}
+		}
+
+		/* Fitness */
+		double fitness = obj.value(solution);
+
 		for (long iter = 0; iter < itermax; iter++) {
-			
+
 			/* Compute fitness */
-			int coveredPoints = ?;
-			int totalPoints = ?;
-			float coverage = 100 * (coveredPoints / totalPoints);
-			int alpha = 2;
-			double fitness = Math.pow(coverage, alpha);
-			
+			/*
+			 * int coveredPoints = ?; int totalPoints = ?; float coverage = 100 *
+			 * (coveredPoints / totalPoints); int alpha = 2; double fitness =
+			 * Math.pow(coverage, alpha);
+			 */
+			fitness = obj.value(solution);
+
 			/* For all available location site */
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
-					/* Evaporation Rate  */
+					/* Evaporation Rate */
 					float e = 0.7f;
 					/* Update pheromone table */
 					T[i][j] = (1 - e) * T[i][j] + 1 / (fitness + 1);
 				}
 			}
-			
+
 			/* For all termite t */
-			for (Termite t: X) {
+			for (Termite t : X) {
 				/* Find the neighbor positions for termite t */
 				Set<Termite> neighbors = t.findNeighbor(X, Tr);
-				
+
 				/* If termite t has neighbor */
 				if (!neighbors.isEmpty()) {
 					/* Select best neighbor with higher probability */
@@ -97,12 +112,12 @@ public class TCO extends binMeta {
 							totalPheromone += T[i][j];
 						}
 					}
-					int newPosX;
-					int newPosY;
+					int newPosX = R.nextInt(width);
+					int newPosY = R.nextInt(height);
 					double newPosP = 0;
 					for (Termite termite : neighbors) {
-						int s = ?;
-						int b = ?;
+						int s = 1;
+						int b = 0;
 						int n = s * (1 - b);
 						double p = (T[termite.getPosX()][termite.getPosY()] * n) / (totalPheromone / n);
 						if (p > newPosP) {
@@ -119,13 +134,22 @@ public class TCO extends binMeta {
 				T[t.getPosX()][t.getPosY()]++;
 			}
 			
+			for (Termite termite : X) {
+				Data newD = Solutions[termite.getPosX()][termite.getPosY()];
+				double value = obj.value(newD);
+				if (this.objValue > value) {
+					this.objValue = value;
+					this.solution = new Data(newD);
+				}
+			}
+
 			/* Adjust the radius Tr */
 			Tr--;
-			if(Tr < 1) {
+			if (Tr < 1) {
 				Tr = 1;
 			}
 		}
-		
+
 	}
 
 	// main
