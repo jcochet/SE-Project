@@ -169,9 +169,17 @@ public class TCO extends binMeta {
 						int posY = neighbor.getPosY();
 						Data newD = D.selectInNeighbour(posX, posY);
 						
+						double totalPhero = 0;
+						for (int i = 0; i < pheromones.length; i++) {
+							for (int j = 0; j < pheromones[i].length; j++) {
+								totalPhero += pheromones[i][j];
+							}
+						}
+						
 						// evaluating the quality of the generated solution
 						double value = obj.value(newD);
-						if (this.objValue > value) {
+						//if (this.objValue > value) {
+						if (((pheromones[posX][posY] * this.objValue) / (totalPhero * this.objValue)) > ((pheromones[posX][posY] * value) / (totalPhero * value))) {
 							this.objValue = value;
 							this.solution = new Data(newD);
 							termite.setPosition(posX, posY);
@@ -185,15 +193,15 @@ public class TCO extends binMeta {
 				} else {
 					int posX = R.nextInt(width);
 					int posY = R.nextInt(height);
-					Data newD = D.selectInNeighbour(1, posY);
+					Data newD = D.selectInNeighbour(posX, posY);
+					termite.setPosition(posX, posY);
+					pheromones[posX][posY]++;
 					
 					// evaluating the quality of the generated solution
 					double value = obj.value(newD);
 					if (this.objValue > value) {
 						this.objValue = value;
 						this.solution = new Data(newD);
-						termite.setPosition(posX, posY);
-						pheromones[posX][posY]++;
 					}
 					
 					// the walk continues from the new generated solution
