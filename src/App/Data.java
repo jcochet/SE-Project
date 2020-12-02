@@ -446,6 +446,37 @@ public class Data
       return this.hammingDistanceTo(D) <= h;
    }
 
+   // Selects a Data object in the position [l,u] of this Data object
+   public Data selectInNeighbour(int l,int u)
+   {
+      try
+      {
+         if (l <= 0) throw new Exception("Impossible to verify neighbourhood of Data object: lower bound on hamming distance is nonpositive");
+         if (u < 0)  throw new Exception("Impossible to verify neighbourhood of Data object: upper bound on hamming distance is negative");
+         if (l > u)  throw new Exception("Impossible to verify neighbourhood of Data object: upper bound is greater than lower bound on hamming distance");
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+         System.exit(1);
+      }
+
+      //Random R = new Random();
+      Data newData = new Data(this);
+      int len = newData.numberOfBits();
+      boolean[] toFlip = new boolean[len];
+      for (int i = 0; i < len; i++)  toFlip[i] = false;
+      int actual = l + u;
+      for (int j = 0; j < actual; j++)
+      {
+         int bitindex = 0;
+         do bitindex = l;  while (toFlip[bitindex]);
+         newData.flipBit(bitindex);
+         toFlip[bitindex] = true;
+      }
+      return newData;
+   }
+
    // Selects a random Data object in the neighbourhood with hamming distance [l,u] of this Data object
    public Data randomSelectInNeighbour(int l,int u)
    {
@@ -476,7 +507,7 @@ public class Data
       }
       return random;
    }
-
+   
    // Selects a random Data object in the neighbourhood with hamming distance h of this Data object
    public Data randomSelectInNeighbour(int h)
    {

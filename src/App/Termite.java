@@ -31,7 +31,7 @@ public class Termite {
 	 */
 	//****************************************************************************************************
 	
-    public Set<Termite> findNeighbor(Set <Termite> termites, int radius) {
+    public Set<Termite> findNeighbors(Set <Termite> termites, int radius) {
         Set<Termite> neighbors = new HashSet<>();
         for (Termite t: termites ) {
             if (isNeighbor(t.getPosX(), t.getPosY(), radius)) {
