@@ -1,8 +1,10 @@
 package App;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /* TCO class
 *
@@ -15,6 +17,31 @@ import java.util.Set;
 
 public class TCO extends binMeta {
 
+	//****************************************************************************************************
+	/**
+	 *	ATTRIBUTS
+	 */
+	//****************************************************************************************************
+	
+    // Data
+    private Data D;
+	// Termite movement radius
+    private int terMouvRad;
+    // Set of termites
+    private Set<Termite> termites;
+	// Solutions table dimension
+    private int tabWidth,tabHeight;
+	// Pheromone table
+    private double pheromones[][];
+    
+
+    
+	//****************************************************************************************************
+	/**
+	 *	CONSTRUCTEURS
+	 */
+	//****************************************************************************************************
+	
 	// Termite Colony Optimization constructor
 	public TCO(Data startPoint, Objective obj, long maxTime) {
 		try {
@@ -36,129 +63,159 @@ public class TCO extends binMeta {
 		}
 	}
 	
+	
+	//****************************************************************************************************
+	/**
+	 *	METHODES
+	 */
+	//****************************************************************************************************
+
 	@Override
 	public void optimize() // by TCO
 	{
 		Random R = new Random();
-		Data D = new Data(this.solution);
+		D = new Data(this.solution);
 		long startime = System.currentTimeMillis();
-		
-		// Solutions table
-		int width = 8;
-		int height = D.numberOfBytes();
-		boolean soluTab[][] = new boolean[width][height];
 
-	    // loading the data structure (the bits) in the 2-dimensional matrix
-	    for (int i = 0; i < width; i++)
-	    {
-	    	for (int j = 0; j < height; j++)
-	        {
-	    		soluTab[i][j] = (D.getCurrentBit() == 1);
-	            D.moveToNextBit();
-	        }
-	    }
-	    
+		// Solutions table
+		tabWidth = 8;
+		tabHeight = D.numberOfBytes();
+		boolean soluTab[][] = new boolean[tabWidth][tabHeight];
+
+		// loading the data structure (the bits) in the 2-dimensional matrix
+		for (int i = 0; i < tabWidth; i++) {
+			for (int j = 0; j < tabHeight; j++) {
+				soluTab[i][j] = (D.getCurrentBit() == 1);
+				D.moveToNextBit();
+			}
+		}
+
 		// Pheromone table
-	    double pheromones[][] = new double[width][height];
-	    for (int i = 0; i < width; i++)
-	    {
-	    	for (int j = 0; j < height; j++)
-	        {
-	    		pheromones[i][j] = 0;
-	        }
-	    }
+		pheromones = new double[tabWidth][tabHeight];
+		for (int i = 0; i < tabWidth; i++) {
+			for (int j = 0; j < tabHeight; j++) {
+				pheromones[i][j] = 0;
+			}
+		}
 
 		// Number of Termite
 		int nbTermite = 10;
 		// Termite movement radius
-		int terMouvRad = D.numberOfBits();
-	    // Set of termites
-	    Set<Termite> termites = new HashSet<>();
+		terMouvRad = D.numberOfBits();
+		// Set of termites
+		termites = new HashSet<>();
 
 		// Initialize all termite position randomly
-	    for (int i = 0; i < nbTermite; i++) {
-	    	int posX = R.nextInt(width);
-	    	int posY = R.nextInt(height);
-	    	termites.add(new Termite(0, 0));
-	    	pheromones[posX][posY]++;
-	    }
-	    
-	    // Fitness
-	    double fitness = obj.value(solution);
+		Semaphore sem = new Semaphore(1);
+		for (int i = 0; i < nbTermite; i++) {
+			int posX = R.nextInt(tabWidth);
+			int posY = R.nextInt(tabHeight);
+			termites.add(new Termite(sem, this, 0, 0));
+			pheromones[posX][posY]++;
+		}
+
+		// Fitness
+		double fitness = obj.value(solution);
 		// Evaporation rate
 		float evapRate = 0.7f;
+		// Initialize pheromone table
+		for (int i = 0; i < tabWidth; i++) {
+			for (int j = 0; j < tabHeight; j++) {
+				pheromones[i][j] = (1 - evapRate) * pheromones[i][j] + 1 / (fitness + 1);
+			}
+		}
 
-		// main loop
+		// FIRST ITERATION
+		for (Termite termite : termites) {
+			termite.start();
+		}
+		// Adjust the radius
+		terMouvRad--;
+
+		// MAIN LOOP
 		while (System.currentTimeMillis() - startime < this.maxTime) {
 			// Compute fitness
 			fitness = obj.value(solution);
 
 			// Update pheromone table
-			for (int i = 0; i < width; i++) {
-				for (int j = 0; j < height; j++) {
+			for (int i = 0; i < tabWidth; i++) {
+				for (int j = 0; j < tabHeight; j++) {
 					pheromones[i][j] = (1 - evapRate) * pheromones[i][j] + 1 / (fitness + 1);
 				}
 			}
-			
-			// Find the neighbor positions for each termite
+
+			// For each termite
 			for (Termite termite : termites) {
-				Set<Termite> neighbors = termite.findNeighbors(termites, terMouvRad);
-				
-				if(!neighbors.isEmpty()) {
-					// Select best neighbor
-					for (Termite neighbor : neighbors) {
-						int posX = neighbor.getPosX();
-						int posY = neighbor.getPosY();
-						Data newD = D.selectInNeighbour(posX, posY);
-						
-						double totalPhero = 0;
-						for (int i = 0; i < pheromones.length; i++) {
-							for (int j = 0; j < pheromones[i].length; j++) {
-								totalPhero += pheromones[i][j];
-							}
-						}
-						
-						// evaluating the quality of the generated solution
-						double value = obj.value(newD);
-						//if (this.objValue > value) {
-						if (((pheromones[posX][posY] * this.objValue) / (totalPhero * this.objValue)) > ((pheromones[posX][posY] * value) / (totalPhero * value))) {
-							this.objValue = value;
-							this.solution = new Data(newD);
-							termite.setPosition(posX, posY);
-							pheromones[posX][posY]++;
-						}
-						
-						// the walk continues from the new generated solution
-						D = newD;
-					}
-					
-				} else {
-					// Selectrandom position
-					int posX = R.nextInt(width);
-					int posY = R.nextInt(height);
-					Data newD = D.selectInNeighbour(posX, posY);
-					termite.setPosition(posX, posY);
-					pheromones[posX][posY]++;
-					
-					// evaluating the quality of the generated solution
-					double value = obj.value(newD);
-					if (this.objValue > value) {
-						this.objValue = value;
-						this.solution = new Data(newD);
-					}
-					
-					// the walk continues from the new generated solution
-					D = newD;
-				}
+				termite.run();
 			}
-			
+
 			// Adjust the radius
 			terMouvRad--;
 		}
 
 	}
+	
+	
+	//****************************************************************************************************
+	/**
+	 *	GETTERS
+	 */
+	//****************************************************************************************************
+	
+	public Data getD() {
+		return this.D;
+	}
 
-	// main
+	public int getTerMouvRad() {
+		return this.terMouvRad;
+	}
+	
+	public Set<Termite> getTermites() {
+		return Collections.unmodifiableSet(this.termites);
+	}
+
+	public double[][] getPheromones() {
+		return this.pheromones;
+	}
+	
+	public int getTabWidth() {
+		return this.tabWidth;
+	}
+	
+	public int getTabHeight() {
+		return this.tabHeight;
+	}
+	
+	
+	//****************************************************************************************************
+	/**
+	 *	SETTERS
+	 */
+	//****************************************************************************************************
+	
+	public void setObjValue(Double objValue) {
+		this.objValue = objValue;
+	}
+	
+	public void setSolution(Data solution) {
+		this.solution = solution;
+	}
+	
+	public void setD(Data D) {
+		this.D = D;
+	}
+
+	public void incrPheromones(int i, int j) {
+		this.pheromones[i][j]++;
+	}
+	
+	
+	//****************************************************************************************************
+	/**
+	 *	MAIN
+	 */
+	//****************************************************************************************************
+	
 	public static void main(String[] args) {
 		int ITMAX = 10000; // number of iterations
 
