@@ -3,6 +3,15 @@ package App;
 import java.util.HashSet;
 import java.util.Set;
 
+/* Termite class
+ *
+ * binMeta project
+ *
+ * last update: Dec 6, 2020
+ *
+ * ABABOU Sarah, COCHET Julien
+ */
+
 public class Termite {
 	
 	//****************************************************************************************************

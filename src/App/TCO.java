@@ -4,13 +4,13 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-/* binMeta class
+/* TCO class
 *
 * binMeta project
 *
-* last update: Nov 9, 2020
+* last update: Dec 6, 2020
 *
-* ABABOU Sarah, COCHET Julien
+* AM, ABABOU Sarah, COCHET Julien
 */
 
 public class TCO extends binMeta {
@@ -35,65 +35,7 @@ public class TCO extends binMeta {
 			System.exit(1);
 		}
 	}
-
-	/*
-	 * @Override public void optimize() // by Termite Colony Optimization { //
-	 * Random Random R = new Random(); // Data Data D = new Data(this.solution);
-	 * 
-	 * // Number of Termite int N = 100; // Termite movement radius int Tr = 100; //
-	 * Maximum iteration long itermax = maxTime;
-	 * 
-	 * // Termites int width = 8; int height = D.numberOfBytes(); Set<Termite> X =
-	 * new HashSet<>();
-	 * 
-	 * // Initialize all termite randomly for (int i = 0; i < N; i++) { X.add(new
-	 * Termite(R.nextInt(width), R.nextInt(height))); }
-	 * 
-	 * // Pheromone table double T[][] = new double[width][height];
-	 * 
-	 * // Solutions table Data Solutions[][] = new Data[width][height]; for (int i =
-	 * 0; i < Solutions.length; i++) { for (int j = 0; j < Solutions[i].length; j++)
-	 * { Solutions[i][j] = new Data(D.numberOfBits(), D.getCurrentBit() == 1);
-	 * D.moveToNextBit(); } }
-	 * 
-	 * // Fitness double fitness = obj.value(solution);
-	 * 
-	 * for (long iter = 0; iter < itermax; iter++) {
-	 * 
-	 * // Compute fitness /* int coveredPoints = ?; int totalPoints = ?; float
-	 * coverage = 100 * (coveredPoints / totalPoints); int alpha = 2; double fitness
-	 * = Math.pow(coverage, alpha);
-	 */
-	/*
-	 * fitness = obj.value(solution);
-	 * 
-	 * // For all available location site for (int i = 0; i < width; i++) { for (int
-	 * j = 0; j < height; j++) { // Evaporation Rate float e = 0.7f; // Update
-	 * pheromone table T[i][j] = (1 - e) * T[i][j] + 1 / (fitness + 1); } }
-	 * 
-	 * // For all termite t for (Termite t : X) { // Find the neighbor positions for
-	 * termite t Set<Termite> neighbors = t.findNeighbor(X, Tr);
-	 * 
-	 * // If termite t has neighbor if (!neighbors.isEmpty()) { // Select best
-	 * neighbor with higher probability double totalPheromone = 0; for (int i = 0; i
-	 * < T.length; i++) { for (int j = 0; j < T.length; j++) { totalPheromone +=
-	 * T[i][j]; } } int newPosX = R.nextInt(width); int newPosY = R.nextInt(height);
-	 * double newPosP = 0; for (Termite termite : neighbors) { int s = 1; int b = 0;
-	 * int n = s * (1 - b); double p = (T[termite.getPosX()][termite.getPosY()] * n)
-	 * / (totalPheromone / n); if (p > newPosP) { newPosX = termite.getPosX();
-	 * newPosY = termite.getPosY(); newPosP = p; } } t.setPosition(newPosX,
-	 * newPosY); } else { // Select position randomly
-	 * t.setPosition(R.nextInt(width), R.nextInt(height)); }
-	 * T[t.getPosX()][t.getPosY()]++; }
-	 * 
-	 * for (Termite termite : X) { Data newD =
-	 * Solutions[termite.getPosX()][termite.getPosY()]; double value =
-	 * obj.value(newD); if (this.objValue > value) { this.objValue = value;
-	 * this.solution = new Data(newD); } }
-	 * 
-	 * // Adjust the radius Tr Tr--; if (Tr < 1) { Tr = 1; } }
-	 */
-
+	
 	@Override
 	public void optimize() // by TCO
 	{
@@ -191,6 +133,7 @@ public class TCO extends binMeta {
 					}
 					
 				} else {
+					// Selectrandom position
 					int posX = R.nextInt(width);
 					int posY = R.nextInt(height);
 					Data newD = D.selectInNeighbour(posX, posY);
